@@ -43,10 +43,24 @@ path-exclude=/usr/share/locale/*
 path-exclude=/usr/share/man/*
 EOF
 
+#7) Configure ssh & root password
 cat "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKosjebuhxoxF7dHtO69Mnk598IpKSgQgAZSmkIrSKV4 mammoth-minions@excs" > $DIRECTORY/root/.ssh/authorized_keys
 
+cleanup() {
+    umount -lf "$DIRECTORY/dev" "$DIRECTORY/sys" "$DIRECTORY/proc" 2>/dev/null || true
+}
+# Run on ctrl+c or natural exit, call cleanup()
+trap cleanup EXIT
 
-# 7) make the rootfs into a squashfs
+# Mount virtual filesystems required for PAM/passwd
+mount -t proc /proc "$DIRECTORY/proc"
+mount -t sysfs /sys "$DIRECTORY/sys"
+mount --bind /dev "$DIRECTORY/dev"
+
+echo "Setting root password for chroot environment..."
+chroot "$DIRECTORY" /usr/bin/passwd root
+
+# 8) make the rootfs into a squashfs
 mksquashfs $DIRECTORY node.squashfs -comp zstd -Xcompression-level 19 -b 1M -noappend
 
 # exclude caches and other files example
