@@ -43,6 +43,9 @@ path-exclude=/usr/share/locale/*
 path-exclude=/usr/share/man/*
 EOF
 
+cat "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKosjebuhxoxF7dHtO69Mnk598IpKSgQgAZSmkIrSKV4 mammoth-minions@excs" > $DIRECTORY/root/.ssh/authorized_keys
+
+
 # 7) make the rootfs into a squashfs
 mksquashfs $DIRECTORY node.squashfs -comp zstd -Xcompression-level 19 -b 1M -noappend
 
